@@ -2,8 +2,8 @@
 from numpy import *
 import math
 
-x_shift = 0.5
-y_shift = 0.98
+x_shift = 0.0
+y_shift = 0.0
 class map2d:
   
     def __init__(self,x,y,azuith):

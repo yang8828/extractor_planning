@@ -6,8 +6,9 @@ import Astar
 import aligned_line
 import numpy as np
 import matplotlib.pyplot as plt
+present_point_index=0
+look_forward_index = 8
 
-look_forward_index = 6
 class VehicleState:
     def __init__(self, x=0.0, y=0.0):
         self.x = x
@@ -20,14 +21,14 @@ def calc_target_index(x, y, pathpoint):
     d = [abs(math.sqrt(idx ** 2 + idy ** 2)) for (idx, idy) in zip(dx, dy)]
     ind = d.index(min(d))
     L = 0.0
-    Lf = look_forward_index*0.4
+    Lf = look_forward_index * 0.4
 
-    while Lf > L and (ind + 1) < len(pathpoint):
-        dx = pathpoint[ind + 1].x - pathpoint[ind].x
-        dy = pathpoint[ind + 1].y - pathpoint[ind].y
+    while Lf > L:
+        dx = pathpoint[(ind + 1)%len(pathpoint)].x - pathpoint[ind%len(pathpoint)].x
+        dy = pathpoint[(ind + 1)%len(pathpoint)].y - pathpoint[ind%len(pathpoint)].y
         L += math.sqrt(dx ** 2 + dy ** 2)
         ind += 1
-    return ind
+    return ind%len(pathpoint)
 
 
 def cal_distance(x1,y1,x2,y2):
@@ -35,7 +36,7 @@ def cal_distance(x1,y1,x2,y2):
 
 
 def stateLoop(x, y, state):
-    if cal_distance(x, y, path_generation.task_point[state].x, path_generation.task_point[state].y) < 2.0:
+    if cal_distance(x, y, path_generation.task_point[state].x, path_generation.task_point[state].y) < 4.0:
         state = state + 1
     return state % len(path_generation.task_point)
 
@@ -83,7 +84,7 @@ def ins():
             finitesate=stateLoop(x, y, finitesate)
             print(round(x, 3), round(y, 3), round(azuith, 1))
             present_Index = calc_target_index(x,y, path_generation.path_point)
-            map.cal_mapXY(path_generation.path_point)
+            #map.cal_mapXY(path_generation.path_point)
 
             '''
             distance = reply() 
@@ -136,13 +137,14 @@ def ins():
                     present_Index_in_vehicle=calc_target_index(0,0,line)      
                     vehiclex=line[present_Index_in_vehicle].x
                     vehicley=line[present_Index_in_vehicle].y
-            else:                                 
+            else:
                 target_x = path_generation.path_point[present_Index].x
                 target_y = path_generation.path_point[present_Index].y
                 vehiclex, vehicley = map.World2Vehicle(target_x, target_y)
+                print(target_x,target_y)
             
             heading_angle = get_theta(vehiclex, vehicley)+180.0
-            #print(round(vehiclex, 3),round(vehicley, 3), finitesate, round(heading_angle, 1))
+            print(round(vehiclex, 3),round(vehicley, 3), finitesate, round(heading_angle, 1))
 
             send_x = int(vehiclex * 1000) + 1000000
             send_y = int(vehicley * 1000) + 1000000
@@ -150,13 +152,13 @@ def ins():
 
             comm1.write(send_x, send_y, finitesate, send_angle)
             
-            plt.cla()
-            plt.xlim(0, 40.0)
-            plt.ylim(0, 40.0)
-            plt.plot(map.mapx, map.mapy, "*b")
-            plt.plot(20,10, "go")            
-            plt.draw()
-            plt.pause(0.1)
+            #plt.cla()
+            #plt.xlim(0, 40.0)
+           # plt.ylim(0, 40.0)
+            #plt.plot(map.mapx, map.mapy, "*b")
+            #plt.plot(20,10, "go")
+            #plt.draw()
+            #plt.pause(0.1)
         else:
             print('comm port is not available!')
 
